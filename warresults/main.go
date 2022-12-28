@@ -52,6 +52,7 @@ func main() {
 
 	// processWarResultsFile("./test_images/WarResults/score-0.jpg", playerScores, nil)
 
+	fmt.Println(len(playerScores))
 	for _, results := range playerScores {
 		fmt.Println(results)
 	}
@@ -69,48 +70,42 @@ func processWarResultsFile(filepath string, playerScores map[string]PlayerScore,
 	//names
 	nameText := processImage(warResults, 807, yStart, 227, yDiff, .5, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  ")
 	names := strings.Split(nameText, "\n")
-	// fmt.Println("Names(", len(names), "):", names)
+	fmt.Println("Names(", len(names), "):", names)
 
 	// fmt.Println(len(playerNames))
 	//score
 	scoresText := processImage(warResults, 1044, yStart, 138, yDiff, .50, "0123456789 ")
 	scores := strings.Split(scoresText, "\n")
-	// fmt.Println("Scores(", len(scores), "):", scores)
+	fmt.Println("Scores(", len(scores), "):", scores)
 
 	//kills
 	killsText := processImage(warResults, 1172, yStart, 138, yDiff, .50, "0123456789 ")
 	kills := strings.Split(killsText, "\n")
-	// fmt.Println("Kills(", len(kills), "):", kills)
+	fmt.Println("Kills(", len(kills), "):", kills)
 
 	//deaths
 	deathsText := processImage(warResults, 1300, yStart, 138, yDiff, .50, "0123456789 ")
 	deaths := strings.Split(deathsText, "\n")
-	// fmt.Println("Deaths(", len(deaths), "):", deaths)
+	fmt.Println("Deaths(", len(deaths), "):", deaths)
 
 	//assists
 	assistsText := processImage(warResults, 1435, yStart, 138, yDiff, .50, "0123456789 ")
 	assists := strings.Split(assistsText, "\n")
-	// fmt.Println("Assists(", len(assists), "):", assists)
+	fmt.Println("Assists(", len(assists), "):", assists)
 
 	//healing
 	healingText := processImage(warResults, 1560, yStart, 138, yDiff, .50, "0123456789 ")
 	healing := strings.Split(healingText, "\n")
-	// fmt.Println("Healing(", len(healing), "):", healing)
+	fmt.Println("Healing(", len(healing), "):", healing)
 
 	//damage
 	damageText := processImage(warResults, 1717, yStart, 138, yDiff, .50, "0123456789 ")
 	damage := strings.Split(damageText, "\n")
-	// fmt.Println("Damage(", len(damage), "):", damage)
-
-	// //scores
-	// scoreText := processImage(warResults, 1043, yStart, 840, yDiff, .4, "0123456789 ")
-	// scores := strings.Split(scoreText, "\n")
-	// fmt.Println(scores)
-	//fmt.Println("Score length:", len(scores))
+	fmt.Println("Damage(", len(damage), "):", damage)
 
 	namesI, scoresI, killsI, deathsI, assistsI, healingI, damageI := 0, 0, 0, 0, 0, 0, 0
 
-	for ; namesI < len(names); namesI++ {
+	for namesI < len(names) {
 
 		name, namesNewI, err := nextNonEmptyElement(names, namesI)
 		if err != nil {
@@ -247,64 +242,6 @@ func addPlayerScore(playerScores map[string]PlayerScore, name string, scoreText 
 	}
 }
 
-// func addPlayerScore(scores []string, i int, playerScores map[string]PlayerScore, playerName string) {
-// 	// playerName := playerNames[i]
-// 	playerRanking := strings.Split(scores[i], " ")
-// 	if len(playerRanking) == 6 {
-// 		//fmt.Println(playerRanking)
-
-// 		score, err := strconv.Atoi(playerRanking[0])
-// 		if err != nil {
-// 			fmt.Println("bad score", err)
-// 			fmt.Println(playerRanking[0])
-// 		}
-
-// 		kills, err := strconv.Atoi(playerRanking[1])
-// 		if err != nil {
-// 			fmt.Println("bad kills", err)
-// 			fmt.Println(playerRanking[1])
-// 		}
-
-// 		deaths, err := strconv.Atoi(playerRanking[2])
-// 		if err != nil {
-// 			fmt.Println("bad deaths", err)
-// 			fmt.Println(playerRanking[2])
-// 		}
-
-// 		assists, err := strconv.Atoi(playerRanking[3])
-// 		if err != nil {
-// 			fmt.Println("bad assists", err)
-// 			fmt.Println(playerRanking[3])
-// 		}
-
-// 		healing, err := strconv.Atoi(playerRanking[4])
-// 		if err != nil {
-// 			fmt.Println("bad healing", err)
-// 			fmt.Println(playerRanking[4])
-// 		}
-
-// 		damage, err := strconv.Atoi(playerRanking[5])
-// 		if err != nil {
-// 			fmt.Println("bad damage", err)
-// 			fmt.Println(playerRanking[5])
-// 		}
-
-// 		playerScores[playerName] = PlayerScore{
-// 			playerName,
-// 			score,
-// 			kills,
-// 			deaths,
-// 			assists,
-// 			healing,
-// 			damage,
-// 		}
-// 	} else {
-// 		fmt.Println("Bad scores")
-// 		fmt.Println(playerName, playerRanking)
-// 	}
-
-// }
-
 func loadImage(filepath string) image.Image {
 	warResultsFile, err := os.Open(filepath)
 	if err != nil {
@@ -328,7 +265,6 @@ func processImage(img image.Image, x0 int, y0 int, xdelta int, ydelta int, greyB
 	croppedImg := cropReadOnlyImage(img, imgBoundaries)
 	fileNum := strconv.Itoa(int(rand.Uint32()))
 	saveImage(croppedImg, "./test_images/WarResults/results/score-"+fileNum+"0-cropped.jpg")
-	// fmt.Println(croppedImage.At(x0, y0))
 	greyScaleImg := imageToGrayScale(croppedImg, imgBoundaries)
 	saveImage(greyScaleImg, "./test_images/WarResults/results/score-"+fileNum+"1-grey.jpg")
 	blackOrWhiteImg := imageToBlackOrWhite(greyScaleImg, greyBoundaryMod, imgBoundaries)
