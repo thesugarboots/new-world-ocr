@@ -1,4 +1,4 @@
-module github.com/thesugarboots/new-world-ocr/warresults
+module github.com/thesugarboots/new-world-ocr
 
 go 1.19
 
