@@ -2,7 +2,6 @@ package warresults
 
 import (
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"image"
 	"log"
@@ -124,7 +123,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 
 	for namesI < len(names) {
 
-		name, namesNewI, err := nextNonEmptyElement(names, namesI)
+		name, namesNewI, err := imageprocessing.NextNonEmptyElement(names, namesI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -132,7 +131,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			namesI = namesNewI
 		}
 
-		score, scoresNewI, err := nextNonEmptyElement(scores, scoresI)
+		score, scoresNewI, err := imageprocessing.NextNonEmptyElement(scores, scoresI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -140,7 +139,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			scoresI = scoresNewI
 		}
 
-		kill, killsNewI, err := nextNonEmptyElement(kills, killsI)
+		kill, killsNewI, err := imageprocessing.NextNonEmptyElement(kills, killsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -148,7 +147,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			killsI = killsNewI
 		}
 
-		death, deathsNewI, err := nextNonEmptyElement(deaths, deathsI)
+		death, deathsNewI, err := imageprocessing.NextNonEmptyElement(deaths, deathsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -156,7 +155,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			deathsI = deathsNewI
 		}
 
-		assist, assistsNewI, err := nextNonEmptyElement(assists, assistsI)
+		assist, assistsNewI, err := imageprocessing.NextNonEmptyElement(assists, assistsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -164,7 +163,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			assistsI = assistsNewI
 		}
 
-		heal, healingNewI, err := nextNonEmptyElement(healing, healingI)
+		heal, healingNewI, err := imageprocessing.NextNonEmptyElement(healing, healingI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -172,7 +171,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			healingI = healingNewI
 		}
 
-		dmg, damageNewI, err := nextNonEmptyElement(damage, damageI)
+		dmg, damageNewI, err := imageprocessing.NextNonEmptyElement(damage, damageI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -187,25 +186,6 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 		wg.Done()
 	}
 
-}
-
-func nextNonEmptyElement(array []string, i int) (string, int, error) {
-	var element string
-	var err error
-
-	for ; i < len(array); i++ {
-		if array[i] != "" {
-			element = array[i]
-			i++
-			break
-		}
-	}
-
-	if element == "" {
-		err = errors.New("no more elements")
-	}
-
-	return element, i, err
 }
 
 func addPlayerScore(playerScores map[string]PlayerScore, name string, scoreText string, killsText string, deathsText string, assistsText string, healingText string, damageText string) {

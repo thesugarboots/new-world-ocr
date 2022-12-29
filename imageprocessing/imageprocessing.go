@@ -2,6 +2,7 @@ package imageprocessing
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -26,7 +27,7 @@ func LoadImages(dir string) []image.Image {
 
 	for _, file := range files {
 		if !file.IsDir() {
-			img, err := loadImage(dir + "/" + file.Name())
+			img, err := LoadImage(dir + "/" + file.Name())
 			if err != nil {
 				fmt.Println("failed to read directory", err)
 			} else {
@@ -40,7 +41,7 @@ func LoadImages(dir string) []image.Image {
 
 }
 
-func loadImage(filepath string) (image.Image, error) {
+func LoadImage(filepath string) (image.Image, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		fmt.Println(err)
@@ -171,6 +172,25 @@ func toText(blackOrWhiteScore image.Image, whitelist string) string {
 	}
 
 	return text
+}
+
+func NextNonEmptyElement(array []string, i int) (string, int, error) {
+	var element string
+	var err error
+
+	for ; i < len(array); i++ {
+		if array[i] != "" {
+			element = array[i]
+			i++
+			break
+		}
+	}
+
+	if element == "" {
+		err = errors.New("no more elements")
+	}
+
+	return element, i, err
 }
 
 func toBytes(score image.Image) []byte {
