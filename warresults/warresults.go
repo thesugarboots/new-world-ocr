@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/thesugarboots/new-world-ocr/imageprocessing"
+	imgproc "github.com/thesugarboots/new-world-ocr/imageprocessing"
 )
 
 type PlayerScore struct {
@@ -28,7 +28,7 @@ func ProcessWarResults(inDir string, outFile string) {
 	startTime := time.Now().UnixNano()
 	playerScores := make(map[string]PlayerScore)
 
-	warResultImgs := imageprocessing.LoadImages(inDir)
+	warResultImgs := imgproc.LoadImages(inDir)
 
 	var wg sync.WaitGroup
 	wg.Add(len(warResultImgs))
@@ -89,19 +89,19 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 	var wgPI sync.WaitGroup
 	wgPI.Add(7)
 	//names
-	go imageprocessing.ProcessImage(warResults, 807, yStart, 227, yDiff, .5, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  ", &nameText, &wgPI)
+	go processImage(warResults, 807, yStart, 227, yDiff, .5, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ. '", &nameText, &wgPI)
 	//score
-	go imageprocessing.ProcessImage(warResults, 1044, yStart, 138, yDiff, .50, "0123456789 ", &scoresText, &wgPI)
+	go processImage(warResults, 1044, yStart, 138, yDiff, .50, "0123456789 ", &scoresText, &wgPI)
 	//kills
-	go imageprocessing.ProcessImage(warResults, 1172, yStart, 138, yDiff, .50, "0123456789 ", &killsText, &wgPI)
+	go processImage(warResults, 1172, yStart, 138, yDiff, .50, "0123456789 ", &killsText, &wgPI)
 	//deaths
-	go imageprocessing.ProcessImage(warResults, 1300, yStart, 138, yDiff, .50, "0123456789 ", &deathsText, &wgPI)
+	go processImage(warResults, 1300, yStart, 138, yDiff, .50, "0123456789 ", &deathsText, &wgPI)
 	//assists
-	go imageprocessing.ProcessImage(warResults, 1435, yStart, 138, yDiff, .50, "0123456789 ", &assistsText, &wgPI)
+	go processImage(warResults, 1435, yStart, 138, yDiff, .50, "0123456789 ", &assistsText, &wgPI)
 	//healing
-	go imageprocessing.ProcessImage(warResults, 1560, yStart, 138, yDiff, .50, "0123456789 ", &healingText, &wgPI)
+	go processImage(warResults, 1560, yStart, 138, yDiff, .50, "0123456789 ", &healingText, &wgPI)
 	//damage
-	go imageprocessing.ProcessImage(warResults, 1717, yStart, 138, yDiff, .50, "0123456789 ", &damageText, &wgPI)
+	go processImage(warResults, 1717, yStart, 138, yDiff, .50, "0123456789 ", &damageText, &wgPI)
 	wgPI.Wait()
 
 	names := strings.Split(nameText, "\n")
@@ -123,7 +123,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 
 	for namesI < len(names) {
 
-		name, namesNewI, err := imageprocessing.NextNonEmptyElement(names, namesI)
+		name, namesNewI, err := imgproc.NextNonEmptyElement(names, namesI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -131,7 +131,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			namesI = namesNewI
 		}
 
-		score, scoresNewI, err := imageprocessing.NextNonEmptyElement(scores, scoresI)
+		score, scoresNewI, err := imgproc.NextNonEmptyElement(scores, scoresI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -139,7 +139,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			scoresI = scoresNewI
 		}
 
-		kill, killsNewI, err := imageprocessing.NextNonEmptyElement(kills, killsI)
+		kill, killsNewI, err := imgproc.NextNonEmptyElement(kills, killsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -147,7 +147,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			killsI = killsNewI
 		}
 
-		death, deathsNewI, err := imageprocessing.NextNonEmptyElement(deaths, deathsI)
+		death, deathsNewI, err := imgproc.NextNonEmptyElement(deaths, deathsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -155,7 +155,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			deathsI = deathsNewI
 		}
 
-		assist, assistsNewI, err := imageprocessing.NextNonEmptyElement(assists, assistsI)
+		assist, assistsNewI, err := imgproc.NextNonEmptyElement(assists, assistsI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -163,7 +163,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			assistsI = assistsNewI
 		}
 
-		heal, healingNewI, err := imageprocessing.NextNonEmptyElement(healing, healingI)
+		heal, healingNewI, err := imgproc.NextNonEmptyElement(healing, healingI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -171,7 +171,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 			healingI = healingNewI
 		}
 
-		dmg, damageNewI, err := imageprocessing.NextNonEmptyElement(damage, damageI)
+		dmg, damageNewI, err := imgproc.NextNonEmptyElement(damage, damageI)
 		if err != nil {
 			fmt.Println(err)
 			break
@@ -186,6 +186,27 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 		wg.Done()
 	}
 
+}
+
+func processImage(img image.Image, x0 int, y0 int, xdelta int, ydelta int, greyBoundaryMod float32, whitelist string, text *string, wg *sync.WaitGroup) {
+	imgBoundaries := image.Rect(x0, y0, x0+xdelta, y0+ydelta)
+
+	croppedImg := imgproc.CropReadOnlyImage(img, imgBoundaries)
+	//fileNum := strconv.Itoa(int(rand.Uint32()))
+	//convert to be debuggable
+	//saveImage(croppedImg, "./test_images/WarResults/results/score-"+fileNum+"0-cropped.jpg")
+	greyScaleImg := imgproc.GrayScaleImage(croppedImg, imgBoundaries)
+	//convert to be debuggable
+	//saveImage(greyScaleImg, "./test_images/WarResults/results/score-"+fileNum+"1-grey.jpg")
+	blackOrWhiteImg := imgproc.BlackOrWhiteImage(greyScaleImg, greyBoundaryMod, imgBoundaries)
+	//convert to be debuggable
+	//saveImage(blackOrWhiteImg, "./test_images/WarResults/results/score-"+fileNum+"2-bw.jpg")
+
+	*text = imgproc.Text(blackOrWhiteImg, whitelist)
+
+	if wg != nil {
+		wg.Done()
+	}
 }
 
 func addPlayerScore(playerScores map[string]PlayerScore, name string, scoreText string, killsText string, deathsText string, assistsText string, healingText string, damageText string) {
