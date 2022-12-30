@@ -25,19 +25,21 @@ func ProcessWarGroups(inFile string, outFile string) {
 	var wgPI sync.WaitGroup
 	wgPI.Add(10)
 
+	charNameWhitelist := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '"
 	yStart1, yStart2, yDiff, xDiff := 370, 780, 278, 152
-	greyBoundary := float32(.4)
-	go processImage(img, 680, yStart1, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[0], &wgPI)
-	go processImage(img, 979, yStart1, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[1], &wgPI)
-	go processImage(img, 1278, yStart1, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[2], &wgPI)
-	go processImage(img, 1576, yStart1, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[3], &wgPI)
-	go processImage(img, 1875, yStart1, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[4], &wgPI)
 
-	go processImage(img, 680, yStart2, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[5], &wgPI)
-	go processImage(img, 979, yStart2, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[6], &wgPI)
-	go processImage(img, 1278, yStart2, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[7], &wgPI)
-	go processImage(img, 1576, yStart2, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[8], &wgPI)
-	go processImage(img, 1875, yStart2, xDiff, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '", &groups[9], &wgPI)
+	greyBoundary := float32(.4)
+	go processImage(img, 680, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[0], &wgPI)
+	go processImage(img, 979, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[1], &wgPI)
+	go processImage(img, 1278, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[2], &wgPI)
+	go processImage(img, 1576, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[3], &wgPI)
+	go processImage(img, 1875, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[4], &wgPI)
+
+	go processImage(img, 680, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[5], &wgPI)
+	go processImage(img, 979, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[6], &wgPI)
+	go processImage(img, 1278, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[7], &wgPI)
+	go processImage(img, 1576, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[8], &wgPI)
+	go processImage(img, 1875, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[9], &wgPI)
 	wgPI.Wait()
 
 	for i, group := range groups {
@@ -67,12 +69,13 @@ func ProcessWarGroups(inFile string, outFile string) {
 	fmt.Println(groupedPlayers)
 
 	f, err := os.Create(outFile)
-	defer f.Close()
 
 	if err != nil {
 
 		fmt.Println("failed to open file", err)
 	}
+
+	defer f.Close()
 
 	w := csv.NewWriter(f)
 	defer w.Flush()
