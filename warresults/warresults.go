@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"math/rand"
 
 	imgproc "github.com/thesugarboots/new-world-ocr/imageprocessing"
 )
@@ -88,20 +89,21 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 	var nameText, scoresText, killsText, deathsText, assistsText, healingText, damageText string
 	var wgPI sync.WaitGroup
 	wgPI.Add(7)
+	greyBoundary:= float32(.4)
 	//names
-	go processImage(warResults, 807, yStart, 227, yDiff, .5, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ. '", &nameText, &wgPI)
+	go processImage(warResults, 807, yStart, 227, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ. '", &nameText, &wgPI)
 	//score
-	go processImage(warResults, 1044, yStart, 138, yDiff, .50, "0123456789 ", &scoresText, &wgPI)
+	go processImage(warResults, 1044, yStart, 138, yDiff, greyBoundary, "0123456789 ", &scoresText, &wgPI)
 	//kills
-	go processImage(warResults, 1172, yStart, 138, yDiff, .50, "0123456789 ", &killsText, &wgPI)
+	go processImage(warResults, 1172, yStart, 138, yDiff, greyBoundary, "0123456789 ", &killsText, &wgPI)
 	//deaths
-	go processImage(warResults, 1300, yStart, 138, yDiff, .50, "0123456789 ", &deathsText, &wgPI)
+	go processImage(warResults, 1300, yStart, 138, yDiff, greyBoundary, "0123456789 ", &deathsText, &wgPI)
 	//assists
-	go processImage(warResults, 1435, yStart, 138, yDiff, .50, "0123456789 ", &assistsText, &wgPI)
+	go processImage(warResults, 1435, yStart, 138, yDiff, greyBoundary, "0123456789 ", &assistsText, &wgPI)
 	//healing
-	go processImage(warResults, 1560, yStart, 138, yDiff, .50, "0123456789 ", &healingText, &wgPI)
+	go processImage(warResults, 1560, yStart, 138, yDiff, greyBoundary, "0123456789 ", &healingText, &wgPI)
 	//damage
-	go processImage(warResults, 1717, yStart, 138, yDiff, .50, "0123456789 ", &damageText, &wgPI)
+	go processImage(warResults, 1717, yStart, 138, yDiff, greyBoundary, "0123456789 ", &damageText, &wgPI)
 	wgPI.Wait()
 
 	names := strings.Split(nameText, "\n")
@@ -192,15 +194,15 @@ func processImage(img image.Image, x0 int, y0 int, xdelta int, ydelta int, greyB
 	imgBoundaries := image.Rect(x0, y0, x0+xdelta, y0+ydelta)
 
 	croppedImg := imgproc.CropReadOnlyImage(img, imgBoundaries)
-	//fileNum := strconv.Itoa(int(rand.Uint32()))
+	fileNum := strconv.Itoa(int(rand.Uint32()))
 	//convert to be debuggable
-	//saveImage(croppedImg, "./test_images/WarResults/results/score-"+fileNum+"0-cropped.jpg")
+	imgproc.SaveImage(croppedImg, "./warresults/test_images/nyewar/results/score-"+fileNum+"0-cropped.jpg")
 	greyScaleImg := imgproc.GrayScaleImage(croppedImg, imgBoundaries)
 	//convert to be debuggable
-	//saveImage(greyScaleImg, "./test_images/WarResults/results/score-"+fileNum+"1-grey.jpg")
+	imgproc.SaveImage(greyScaleImg, "./warresults/test_images/nyewar/results/score-"+fileNum+"1-grey.jpg")
 	blackOrWhiteImg := imgproc.BlackOrWhiteImage(greyScaleImg, greyBoundaryMod, imgBoundaries)
 	//convert to be debuggable
-	//saveImage(blackOrWhiteImg, "./test_images/WarResults/results/score-"+fileNum+"2-bw.jpg")
+	imgproc.SaveImage(blackOrWhiteImg, "./warresults/test_images/nyewar/results/score-"+fileNum+"2-bw.jpg")
 
 	*text = imgproc.Text(blackOrWhiteImg, whitelist)
 
