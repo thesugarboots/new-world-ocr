@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"math/rand"
 
 	imgproc "github.com/thesugarboots/new-world-ocr/imageprocessing"
 )
@@ -89,7 +89,7 @@ func processWarResultsFile(warResults image.Image, playerScores map[string]Playe
 	var nameText, scoresText, killsText, deathsText, assistsText, healingText, damageText string
 	var wgPI sync.WaitGroup
 	wgPI.Add(7)
-	greyBoundary:= float32(.4)
+	greyBoundary := float32(.4)
 	//names
 	go processImage(warResults, 807, yStart, 227, yDiff, greyBoundary, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ. '", &nameText, &wgPI)
 	//score

@@ -25,21 +25,22 @@ func ProcessWarGroups(inFile string, outFile string) {
 	var wgPI sync.WaitGroup
 	wgPI.Add(10)
 
-	charNameWhitelist := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.  '"
-	yStart1, yStart2, yDiff, xDiff := 370, 780, 278, 152
+	charNameWhitelist := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ. '"
+	yStart1, yStart2, yDiff, xDiff := 370, 780, 278, 145
+	xStart1, xStart2, xStart3, xStart4, xStart5 := 675, 974, 1273, 1571, 1870
 
-	greyBoundary := float32(.4)
-	go processImage(img, 680, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[0], &wgPI)
-	go processImage(img, 979, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[1], &wgPI)
-	go processImage(img, 1278, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[2], &wgPI)
-	go processImage(img, 1576, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[3], &wgPI)
-	go processImage(img, 1875, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[4], &wgPI)
+	greyBoundary := float32(.395)
+	go processImage(img, xStart1, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[0], &wgPI)
+	go processImage(img, xStart2, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[1], &wgPI)
+	go processImage(img, xStart3, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[2], &wgPI)
+	go processImage(img, xStart4, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[3], &wgPI)
+	go processImage(img, xStart5, yStart1, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[4], &wgPI)
 
-	go processImage(img, 680, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[5], &wgPI)
-	go processImage(img, 979, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[6], &wgPI)
-	go processImage(img, 1278, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[7], &wgPI)
-	go processImage(img, 1576, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[8], &wgPI)
-	go processImage(img, 1875, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[9], &wgPI)
+	go processImage(img, xStart1, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[5], &wgPI)
+	go processImage(img, xStart2, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[6], &wgPI)
+	go processImage(img, xStart3, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[7], &wgPI)
+	go processImage(img, xStart4, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[8], &wgPI)
+	go processImage(img, xStart5, yStart2, xDiff, yDiff, greyBoundary, charNameWhitelist, &groups[9], &wgPI)
 	wgPI.Wait()
 
 	for i, group := range groups {
@@ -58,15 +59,13 @@ func ProcessWarGroups(inFile string, outFile string) {
 				continue
 			}
 
-			//Crowns seem to be parsing as " u", so removing that at the end.
-			//if strings.
-
 			groupedPlayers[player] = strconv.Itoa(i + 1)
 
 		}
 	}
 
 	fmt.Println(groupedPlayers)
+	fmt.Println("Player extracted:", len(groupedPlayers))
 
 	f, err := os.Create(outFile)
 
@@ -97,17 +96,20 @@ func ProcessWarGroups(inFile string, outFile string) {
 
 func processImage(img image.Image, x0 int, y0 int, xdelta int, ydelta int, greyBoundaryMod float32, whitelist string, text *string, wg *sync.WaitGroup) {
 	imgBoundaries := image.Rect(x0, y0, x0+xdelta, y0+ydelta)
+	//whitenMin, whitenMax := float32(.00), float32(1.0)
 
 	croppedImg := imgproc.CropReadOnlyImage(img, imgBoundaries)
 	rootPath := "./wargroups/test_images/" + strconv.Itoa(x0) + "-" + strconv.Itoa(y0)
-	//convert to be debuggable
-	imgproc.SaveImage(croppedImg, rootPath+"0-cropped.jpg")
+	imgproc.SaveImage(croppedImg, rootPath+"0-cropped.jpg") //convert to be debuggable
+
+	// whitenedImg := imgproc.AdjustToWhite(croppedImg, imgBoundaries, whitenMin, whitenMax)
+	// imgproc.SaveImage(whitenedImg, rootPath+"1-whitened.jpg") //convert to be debuggable
+
 	greyScaleImg := imgproc.GrayScaleImage(croppedImg, imgBoundaries)
-	//convert to be debuggable
-	imgproc.SaveImage(greyScaleImg, rootPath+"1-grey.jpg")
+	imgproc.SaveImage(greyScaleImg, rootPath+"2-grey.jpg") //convert to be debuggable
+
 	blackOrWhiteImg := imgproc.BlackOrWhiteImage(greyScaleImg, greyBoundaryMod, imgBoundaries)
-	//convert to be debuggable
-	imgproc.SaveImage(blackOrWhiteImg, rootPath+"2-bw.jpg")
+	imgproc.SaveImage(blackOrWhiteImg, rootPath+"3-bw.jpg") //convert to be debuggable
 
 	*text = imgproc.Text(blackOrWhiteImg, whitelist)
 

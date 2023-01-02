@@ -67,8 +67,53 @@ func CropReadOnlyImage(img image.Image, rect image.Rectangle) image.Image {
 	return croppedImg
 }
 
+func AdjustToWhite(img image.Image, rect image.Rectangle, greyBoundaryModMin float32, greyBoundaryModMax float32) image.Image {
+	whitenedImg := image.NewRGBA(rect)
+
+	greyBoundaryMin, greyBoundaryMax := greyBoundary(greyBoundaryModMin), greyBoundary(greyBoundaryModMax)
+
+	for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
+		for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
+			r, g, b, a := img.At(x, y).RGBA()
+
+			// average
+			if greyBoundaryMin < r && r < greyBoundaryMax && greyBoundaryMin < g && g < greyBoundaryMax && greyBoundaryMin < b && b < greyBoundaryMax {
+				// fmt.Println(r, g, b)
+				rgbAry := []uint32{r, g, b}
+				newWhite := maxInt(rgbAry)
+				// fmt.Println(newWhite)
+				r, g, b = newWhite, newWhite, newWhite
+			}
+
+			c := color.RGBA{
+				R: uint8(r), G: uint8(g), B: uint8(b), A: uint8(a),
+			}
+			whitenedImg.Set(x, y, c)
+		}
+	}
+
+	return whitenedImg
+}
+
+func maxInt(numbers []uint32) uint32 {
+	maxNum := uint32(0)
+
+	for i := 0; i < len(numbers); i++ {
+		if i == 0 {
+			maxNum = numbers[i]
+		}
+		if maxNum <= numbers[i] {
+			maxNum = numbers[i]
+		}
+	}
+
+	return maxNum
+}
+
 func GrayScaleImage(img image.Image, rect image.Rectangle) image.Image {
 	greyScaleImg := image.NewRGBA(rect)
+
+	rWgt, gWgt, bWgt := 0.92126, 0.97152, 0.90722
 
 	for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 		for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
@@ -76,9 +121,9 @@ func GrayScaleImage(img image.Image, rect image.Rectangle) image.Image {
 			originalColor := color.RGBAModel.Convert(pixel).(color.RGBA)
 			//fmt.Println(originalColor)
 			// Offset colors a little, adjust it to your taste
-			r := float64(originalColor.R) * 0.92126
-			g := float64(originalColor.G) * 0.97152
-			b := float64(originalColor.B) * 0.90722
+			r := float64(originalColor.R) * rWgt
+			g := float64(originalColor.G) * gWgt
+			b := float64(originalColor.B) * bWgt
 			// average
 			grey := uint8((r + g + b) / 3)
 			c := color.RGBA{
@@ -95,9 +140,7 @@ func BlackOrWhiteImage(img image.Image, greyBoundaryMod float32, rect image.Rect
 	blackOrWhiteImg := image.NewRGBA(rect)
 
 	//Get grey boundary between white and black
-	r, _, _, _ := color.White.RGBA()
-	modifier := greyBoundaryMod * float32(r)
-	greyBoundary := uint32(modifier)
+	greyBoundary := greyBoundary(greyBoundaryMod)
 
 	for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 		for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
@@ -113,6 +156,12 @@ func BlackOrWhiteImage(img image.Image, greyBoundaryMod float32, rect image.Rect
 	}
 
 	return blackOrWhiteImg
+}
+
+func greyBoundary(greyBoundaryMod float32) uint32 {
+	r, _, _, _ := color.White.RGBA()
+	modifier := greyBoundaryMod * float32(r)
+	return uint32(modifier)
 }
 
 func SaveImage(img image.Image, filepath string) {
